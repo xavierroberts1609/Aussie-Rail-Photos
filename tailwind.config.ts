@@ -12,9 +12,9 @@ const config: Config = {
           border: "#2a2a2a",
         },
         gold: {
-          DEFAULT: "#c49a3a",
-          light: "#d0ae61",
-          dark: "#93742c",
+          DEFAULT: "#6d8a73",
+          light: "#8aa18f",
+          dark: "#526856",
         },
         bone: {
           DEFAULT: "#f5f5f0",
@@ -26,7 +26,7 @@ const config: Config = {
         sans: ["var(--font-inter)", "sans-serif"],
       },
       backgroundImage: {
-        "gold-gradient": "linear-gradient(135deg, #d0ae61 0%, #c49a3a 50%, #93742c 100%)",
+        "gold-gradient": "linear-gradient(135deg, #8aa18f 0%, #6d8a73 50%, #526856 100%)",
       },
     },
   },
