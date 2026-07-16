@@ -31,9 +31,14 @@ COPY --from=builder /app/.next/static ./.next/static
 # secrets can ever end up baked into the image.
 RUN rm -f ./.env
 
-# Prisma client + schema/migrations (needed at runtime for migrate deploy)
+# Prisma client + CLI + schema/migrations (needed at runtime for migrate
+# deploy). Without node_modules/prisma present, `npx prisma` would try to
+# download a fresh (mismatched, much larger) copy from npm at container
+# startup, which is slow, needs network access, and can OOM a small VM.
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
+COPY --from=builder /app/node_modules/.bin ./node_modules/.bin
 COPY --from=builder /app/prisma ./prisma
 
 COPY docker-entrypoint.sh ./
