@@ -13,6 +13,7 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@flydotio/litestream": "^1.0.1",
     "@prisma/client": "^5.19.1",
     "bcryptjs": "^2.4.3",
     "next": "14.2.35",
@@ -39,5 +40,8 @@
     "@prisma/engines@5.22.0": true,
     "esbuild@0.28.1": true,
     "prisma@5.22.0": true
+  },
+  "dockerfile": {
+    "litestream": true
   }
 }

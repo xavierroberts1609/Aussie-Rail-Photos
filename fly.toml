@@ -1,29 +1,32 @@
-# Fly.io app config. `fly launch` will fill in / adjust the app name and
-# region for you the first time you deploy - treat the values below as
-# sensible defaults, not final settings.
-app = "aussie-rail-photos"
-primary_region = "syd"
+# fly.toml app configuration file generated for aussie-rail-photos on 2026-07-16T06:25:17Z
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'aussie-rail-photos'
+primary_region = 'syd'
 
 [build]
 
 [env]
-  ADMIN_EMAIL = "AussieRailPhotos@gmail.com"
-  DATABASE_URL = "file:/data/prod.db"
-  PORT = "3000"
+  ADMIN_EMAIL = 'AussieRailPhotos@gmail.com'
+  DATABASE_URL = 'file:/data/prod.db'
+  PORT = '3000'
 
 [[mounts]]
-  source = "aussie_rail_data"
-  destination = "/data"
+  source = 'aussie_rail_data'
+  destination = '/data'
 
 [http_service]
   internal_port = 3000
   force_https = true
-  auto_stop_machines = true
+  auto_stop_machines = 'stop'
   auto_start_machines = true
   min_machines_running = 0
-  processes = ["app"]
+  processes = ['app']
 
 [[vm]]
-  memory = "256mb"
-  cpu_kind = "shared"
+  memory = '256mb'
+  cpu_kind = 'shared'
   cpus = 1
+  memory_mb = 256
