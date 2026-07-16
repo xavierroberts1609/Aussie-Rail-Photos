@@ -13,6 +13,10 @@ RUN apk add --no-cache openssl
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npx prisma generate
+# Cap V8's heap during the build so it stays within what small VPS-class
+# hosts (256-512MB RAM + swap) can actually handle, instead of growing
+# unbounded and locking up the whole machine.
+ENV NODE_OPTIONS="--max-old-space-size=384"
 RUN npm run build
 
 # ---- runner ----
