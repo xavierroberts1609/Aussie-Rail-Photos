@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { SEED_OPERATORS, ALL_SEED_OPERATORS } from "@/lib/operators";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const photos = await prisma.photo.findMany({
     where: { operator: { not: null } },

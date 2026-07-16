@@ -7,6 +7,9 @@ RUN npm ci
 # ---- builder ----
 FROM node:20-alpine AS builder
 WORKDIR /app
+# Prisma's query engine needs OpenSSL to load; Alpine doesn't include it
+# by default, and Prisma can't detect the right engine variant without it.
+RUN apk add --no-cache openssl
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npx prisma generate
@@ -15,6 +18,7 @@ RUN npm run build
 # ---- runner ----
 FROM node:20-alpine AS runner
 WORKDIR /app
+RUN apk add --no-cache openssl
 ENV NODE_ENV=production
 ENV PORT=3000
 
