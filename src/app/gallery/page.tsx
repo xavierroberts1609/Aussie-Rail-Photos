@@ -59,7 +59,7 @@ export default async function GalleryPage({
       <div className="flex flex-col gap-6 border-b border-ink-border pb-8 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="font-display text-4xl text-bone">
-            Aussie <span className="text-gold">Trains</span>
+            <span className="text-gold">Gallery</span>
           </h1>
           <p className="mt-2 text-bone-muted">
             Showcasing the best of Australian railway photography
