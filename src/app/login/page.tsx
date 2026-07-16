@@ -83,10 +83,6 @@ function LoginForm() {
           Create one
         </Link>
       </p>
-
-      <p className="mt-8 rounded-sm border border-ink-border bg-ink-panel p-3 text-xs text-bone-muted">
-        Demo login: <span className="text-gold">demo@example.com</span> / password123
-      </p>
     </div>
   );
 }

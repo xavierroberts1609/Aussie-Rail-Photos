@@ -6,11 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "seed": "tsx prisma/seed.ts"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "lint": "next lint"
   },
   "dependencies": {
     "@prisma/client": "^5.19.1",
@@ -31,13 +27,11 @@
     "postcss": "^8.4.39",
     "prisma": "^5.19.1",
     "tailwindcss": "^3.4.6",
-    "tsx": "^4.16.2",
     "typescript": "^5.5.3"
   },
   "allowScripts": {
     "@prisma/client@5.22.0": true,
     "@prisma/engines@5.22.0": true,
-    "esbuild@0.28.1": true,
     "prisma@5.22.0": true
   }
 }
