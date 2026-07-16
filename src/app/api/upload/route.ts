@@ -10,7 +10,7 @@ import { PHOTO_STATUS, ROLES } from "@/lib/constants";
 import { STATES } from "@/lib/locations";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_SIZE = 15 * 1024 * 1024; // 15MB
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Only JPG, PNG and WebP images are supported." }, { status: 400 });
   }
   if (file.size > MAX_SIZE) {
-    return NextResponse.json({ error: "Image must be smaller than 10MB." }, { status: 400 });
+    return NextResponse.json({ error: "Image must be smaller than 15MB." }, { status: 400 });
   }
   if (typeof title !== "string" || !title.trim()) {
     return NextResponse.json({ error: "Title is required." }, { status: 400 });
