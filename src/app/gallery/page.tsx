@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { prisma } from "@/lib/prisma";
-import { CATEGORIES } from "@/lib/categories";
 import { PHOTO_STATUS } from "@/lib/constants";
 import PhotoCard from "@/components/PhotoCard";
 import CategoryFilter from "@/components/CategoryFilter";
@@ -44,10 +43,16 @@ export default async function GalleryPage({
   const q = searchParams.q;
   const photos = await getPhotos(category, q);
 
-  const [photoCount, photographerCount] = await Promise.all([
+  const [photoCount, photographerCount, operators] = await Promise.all([
     prisma.photo.count({ where: { status: PHOTO_STATUS.APPROVED } }),
     prisma.user.count({ where: { photos: { some: { status: PHOTO_STATUS.APPROVED } } } }),
+    prisma.photo.findMany({
+      where: { status: PHOTO_STATUS.APPROVED, operator: { not: null } },
+      select: { operator: true },
+      distinct: ["operator"],
+    }),
   ]);
+  const operatorCount = operators.length;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
@@ -104,8 +109,8 @@ export default async function GalleryPage({
           <p className="text-xs text-bone-muted">Photographers</p>
         </div>
         <div>
-          <p className="font-display text-3xl text-gold">{CATEGORIES.length}</p>
-          <p className="text-xs text-bone-muted">Categories</p>
+          <p className="font-display text-3xl text-gold">{operatorCount}</p>
+          <p className="text-xs text-bone-muted">Operators</p>
         </div>
       </div>
     </div>
