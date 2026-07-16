@@ -1,0 +1,29 @@
+# Fly.io app config. `fly launch` will fill in / adjust the app name and
+# region for you the first time you deploy - treat the values below as
+# sensible defaults, not final settings.
+app = "aussie-rail-photos"
+primary_region = "syd"
+
+[build]
+
+[env]
+  ADMIN_EMAIL = "AussieRailPhotos@gmail.com"
+  DATABASE_URL = "file:/data/prod.db"
+  PORT = "3000"
+
+[[mounts]]
+  source = "aussie_rail_data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[[vm]]
+  memory = "256mb"
+  cpu_kind = "shared"
+  cpus = 1
