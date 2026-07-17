@@ -2,12 +2,13 @@ import { prisma } from "@/lib/prisma";
 import { PHOTO_STATUS } from "@/lib/constants";
 import AdminPhotoRow from "@/components/AdminPhotoRow";
 import AdminNameChangeRow from "@/components/AdminNameChangeRow";
+import AdminTagsManager from "@/components/AdminTagsManager";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
   const photos = await prisma.photo.findMany({
-    include: { photographer: { select: { name: true } } },
+    include: { photographer: { select: { name: true } }, tags: true },
     orderBy: [{ status: "asc" }, { createdAt: "desc" }],
   });
 
@@ -15,6 +16,8 @@ export default async function AdminPage() {
     where: { pendingName: { not: null } },
     select: { id: true, name: true, pendingName: true, email: true },
   });
+
+  const tags = await prisma.tag.findMany({ orderBy: { name: "asc" } });
 
   const pending = photos.filter((p) => p.status === PHOTO_STATUS.PENDING);
 
@@ -72,6 +75,16 @@ export default async function AdminPage() {
             photos.map((photo) => <AdminPhotoRow key={photo.id} photo={serialize(photo)} />)
           )}
         </div>
+      </section>
+
+      <section className="mt-14">
+        <h2 className="font-display text-2xl text-bone">
+          Tags <span className="text-gold">({tags.length})</span>
+        </h2>
+        <p className="mt-1 text-sm text-bone-muted">
+          Manage the fixed set of tags photographers can apply to their photos.
+        </p>
+        <AdminTagsManager tags={tags} />
       </section>
     </div>
   );

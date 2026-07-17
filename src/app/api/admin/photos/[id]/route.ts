@@ -22,7 +22,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
-  const parsed = parsePhotoFields(body);
+  const parsed = await parsePhotoFields(body);
   if ("error" in parsed) {
     return NextResponse.json({ error: parsed.error }, { status: 400 });
   }

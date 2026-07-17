@@ -5,7 +5,6 @@ import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { CATEGORIES } from "@/lib/categories";
 import { PHOTO_STATUS, ROLES } from "@/lib/constants";
 import { STATES } from "@/lib/locations";
 
@@ -23,7 +22,7 @@ export async function POST(request: Request) {
   const formData = await request.formData();
   const file = formData.get("photo");
   const title = formData.get("title");
-  const category = formData.get("category");
+  const tagIds = [...new Set(formData.getAll("tags").filter((v): v is string => typeof v === "string" && v.length > 0))];
   const operator = formData.get("operator");
   const trainLine = formData.get("trainLine");
   const trainType = formData.get("trainType");
@@ -48,8 +47,12 @@ export async function POST(request: Request) {
   if (typeof title !== "string" || !title.trim()) {
     return NextResponse.json({ error: "Title is required." }, { status: 400 });
   }
-  if (typeof category !== "string" || !CATEGORIES.includes(category as (typeof CATEGORIES)[number])) {
-    return NextResponse.json({ error: "A valid category is required." }, { status: 400 });
+  if (tagIds.length === 0) {
+    return NextResponse.json({ error: "Select at least one tag." }, { status: 400 });
+  }
+  const validTags = await prisma.tag.findMany({ where: { id: { in: tagIds } } });
+  if (validTags.length !== tagIds.length) {
+    return NextResponse.json({ error: "One or more tags are invalid." }, { status: 400 });
   }
   if (typeof state === "string" && state && !STATES.some((s) => s.code === state)) {
     return NextResponse.json({ error: "Invalid state." }, { status: 400 });
@@ -65,8 +68,8 @@ export async function POST(request: Request) {
   const photo = await prisma.photo.create({
     data: {
       title: title.trim(),
-      category: category as string,
       imageUrl: `/api/uploads/${filename}`,
+      tags: { connect: tagIds.map((id) => ({ id })) },
       operator: typeof operator === "string" && operator.trim() ? operator.trim() : null,
       trainLine: typeof trainLine === "string" && trainLine.trim() ? trainLine.trim() : null,
       trainType: typeof trainType === "string" && trainType.trim() ? trainType.trim() : null,

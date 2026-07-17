@@ -5,7 +5,7 @@ import EditPhotoForm from "@/components/EditPhotoForm";
 export const dynamic = "force-dynamic";
 
 export default async function EditPhotoPage({ params }: { params: { id: string } }) {
-  const photo = await prisma.photo.findUnique({ where: { id: params.id } });
+  const photo = await prisma.photo.findUnique({ where: { id: params.id }, include: { tags: true } });
   if (!photo) notFound();
 
   return (
@@ -20,7 +20,7 @@ export default async function EditPhotoPage({ params }: { params: { id: string }
         photo={{
           id: photo.id,
           title: photo.title,
-          category: photo.category,
+          tagIds: photo.tags.map((t) => t.id),
           operator: photo.operator,
           trainLine: photo.trainLine,
           trainType: photo.trainType,

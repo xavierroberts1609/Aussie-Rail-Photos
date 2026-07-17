@@ -21,7 +21,6 @@ model User {
 model Photo {
   id          String    @id @default(cuid())
   title       String
-  category    String
   imageUrl    String
   status      String    @default("PENDING")
   operator    String?
@@ -39,4 +38,11 @@ model Photo {
 
   photographer   User   @relation(fields: [photographerId], references: [id])
   photographerId String
+  tags           Tag[]
+}
+
+model Tag {
+  id     String  @id @default(cuid())
+  name   String  @unique
+  photos Photo[]
 }

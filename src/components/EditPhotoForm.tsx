@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CATEGORIES } from "@/lib/categories";
 import LocationFields from "@/components/LocationFields";
 import OperatorField from "@/components/OperatorField";
+import TagsField from "@/components/TagsField";
 
 export type EditablePhoto = {
   id: string;
   title: string;
-  category: string;
+  tagIds: string[];
   operator: string | null;
   trainLine: string | null;
   trainType: string | null;
@@ -35,9 +35,9 @@ export default function EditPhotoForm({
   notice?: string;
 }) {
   const router = useRouter();
+  const [tags, setTags] = useState<string[]>(photo.tagIds);
   const [form, setForm] = useState({
     title: photo.title,
-    category: photo.category,
     operator: photo.operator ?? "",
     trainLine: photo.trainLine ?? "",
     trainType: photo.trainType ?? "",
@@ -65,7 +65,7 @@ export default function EditPhotoForm({
     const res = await fetch(endpoint, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify({ ...form, tags }),
     });
     const data = await res.json().catch(() => ({}));
     setLoading(false);
@@ -133,19 +133,7 @@ export default function EditPhotoForm({
         />
       </div>
 
-      <div>
-        <label className="label-field" htmlFor="category">Category</label>
-        <select
-          id="category"
-          value={form.category}
-          onChange={(e) => update("category", e.target.value)}
-          className="input-field"
-        >
-          {CATEGORIES.map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
-      </div>
+      <TagsField value={tags} onChange={setTags} />
 
       <LocationFields
         value={{

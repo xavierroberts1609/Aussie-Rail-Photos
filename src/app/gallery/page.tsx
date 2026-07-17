@@ -3,16 +3,16 @@ import { Suspense } from "react";
 import { prisma } from "@/lib/prisma";
 import { PHOTO_STATUS } from "@/lib/constants";
 import PhotoCard from "@/components/PhotoCard";
-import CategoryFilter from "@/components/CategoryFilter";
+import TagsFilter from "@/components/TagsFilter";
 import SearchBar from "@/components/SearchBar";
 
 export const dynamic = "force-dynamic";
 
-async function getPhotos(category?: string, q?: string) {
+async function getPhotos(tagIds: string[], q?: string) {
   return prisma.photo.findMany({
     where: {
       status: PHOTO_STATUS.APPROVED,
-      ...(category && category !== "All" ? { category } : {}),
+      ...(tagIds.length > 0 ? { tags: { some: { id: { in: tagIds } } } } : {}),
       ...(q
         ? {
             OR: [
@@ -37,11 +37,14 @@ async function getPhotos(category?: string, q?: string) {
 export default async function GalleryPage({
   searchParams,
 }: {
-  searchParams: { category?: string; q?: string };
+  searchParams: { tags?: string; q?: string };
 }) {
-  const category = searchParams.category;
+  const tagIds = searchParams.tags ? searchParams.tags.split(",").filter(Boolean) : [];
   const q = searchParams.q;
-  const photos = await getPhotos(category, q);
+  const [photos, allTags] = await Promise.all([
+    getPhotos(tagIds, q),
+    prisma.tag.findMany({ orderBy: { name: "asc" } }),
+  ]);
 
   const [photoCount, photographerCount, operators] = await Promise.all([
     prisma.photo.count({ where: { status: PHOTO_STATUS.APPROVED } }),
@@ -75,7 +78,7 @@ export default async function GalleryPage({
           <SearchBar />
         </Suspense>
         <Suspense fallback={null}>
-          <CategoryFilter />
+          <TagsFilter tags={allTags} />
         </Suspense>
         <p className="text-xs text-bone-muted">
           On large screens, photo thumbnails may appear low quality. To see the best quality, click into the photo.
@@ -86,7 +89,7 @@ export default async function GalleryPage({
         <div className="panel mt-12 flex flex-col items-center gap-3 px-6 py-20 text-center">
           <p className="font-display text-2xl text-bone">No photos yet</p>
           <p className="max-w-sm text-sm text-bone-muted">
-            {q || category
+            {q || tagIds.length > 0
               ? "No photos match your search or filter. Try clearing them."
               : "Be the first to upload a shot of Australian rail."}
           </p>

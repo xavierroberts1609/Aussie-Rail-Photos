@@ -12,7 +12,7 @@ export default async function EditOwnPhotoPage({ params }: { params: { id: strin
     redirect(`/login?callbackUrl=/photo/${params.id}/edit`);
   }
 
-  const photo = await prisma.photo.findUnique({ where: { id: params.id } });
+  const photo = await prisma.photo.findUnique({ where: { id: params.id }, include: { tags: true } });
   if (!photo) notFound();
   if (photo.photographerId !== session.user.id) notFound();
 
@@ -28,7 +28,7 @@ export default async function EditOwnPhotoPage({ params }: { params: { id: strin
         photo={{
           id: photo.id,
           title: photo.title,
-          category: photo.category,
+          tagIds: photo.tags.map((t) => t.id),
           operator: photo.operator,
           trainLine: photo.trainLine,
           trainType: photo.trainType,

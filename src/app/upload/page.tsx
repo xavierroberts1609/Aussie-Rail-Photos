@@ -2,9 +2,9 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { CATEGORIES } from "@/lib/categories";
 import LocationFields, { type LocationValue } from "@/components/LocationFields";
 import OperatorField from "@/components/OperatorField";
+import TagsField from "@/components/TagsField";
 
 export default function UploadPage() {
   const router = useRouter();
@@ -13,6 +13,7 @@ export default function UploadPage() {
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [operator, setOperator] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
   const [location, setLocation] = useState<LocationValue>({
     state: "",
     suburb: "",
@@ -108,15 +109,7 @@ export default function UploadPage() {
           <input id="consist" name="consist" placeholder="e.g. CLF1, CLF4, 4910, G514" className="input-field" />
         </div>
 
-        <div>
-          <label className="label-field" htmlFor="category">Category</label>
-          <select id="category" name="category" required defaultValue="" className="input-field">
-            <option value="" disabled>Select category</option>
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
-        </div>
+        <TagsField value={tags} onChange={setTags} />
 
         <LocationFields value={location} onChange={setLocation} />
 

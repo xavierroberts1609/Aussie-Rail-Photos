@@ -10,7 +10,7 @@ export type AdminPhotoData = {
   title: string;
   imageUrl: string;
   status: string;
-  category: string;
+  tags: { id: string; name: string }[];
   createdAt: string;
   photographer: { name: string };
 };
@@ -73,7 +73,8 @@ export default function AdminPhotoRow({ photo }: { photo: AdminPhotoData }) {
           </span>
         </div>
         <p className="mt-1 text-sm text-bone-muted">
-          by {photo.photographer.name} · {photo.category}
+          by {photo.photographer.name}
+          {photo.tags.length > 0 && ` · ${photo.tags.map((t) => t.name).join(", ")}`}
         </p>
         {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
       </div>

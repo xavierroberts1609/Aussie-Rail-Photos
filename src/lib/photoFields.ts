@@ -1,4 +1,4 @@
-import { CATEGORIES } from "@/lib/categories";
+import { prisma } from "@/lib/prisma";
 import { STATES } from "@/lib/locations";
 
 const TEXT_FIELDS = [
@@ -13,7 +13,7 @@ const TEXT_FIELDS = [
   "description",
 ] as const;
 
-export function parsePhotoFields(body: Record<string, unknown>): { data: Record<string, unknown> } | { error: string } {
+export async function parsePhotoFields(body: Record<string, unknown>): Promise<{ data: Record<string, unknown> } | { error: string }> {
   const data: Record<string, unknown> = {};
 
   if (body.title !== undefined) {
@@ -22,11 +22,19 @@ export function parsePhotoFields(body: Record<string, unknown>): { data: Record<
     }
     data.title = body.title.trim();
   }
-  if (body.category !== undefined) {
-    if (!CATEGORIES.includes(body.category as (typeof CATEGORIES)[number])) {
-      return { error: "Invalid category." };
+  if (body.tags !== undefined) {
+    if (!Array.isArray(body.tags) || body.tags.some((t) => typeof t !== "string")) {
+      return { error: "Invalid tags." };
     }
-    data.category = body.category;
+    const tagIds = [...new Set(body.tags as string[])];
+    if (tagIds.length === 0) {
+      return { error: "Select at least one tag." };
+    }
+    const found = await prisma.tag.findMany({ where: { id: { in: tagIds } } });
+    if (found.length !== tagIds.length) {
+      return { error: "One or more tags are invalid." };
+    }
+    data.tags = { set: tagIds.map((id) => ({ id })) };
   }
   if (body.state !== undefined) {
     if (body.state && !STATES.some((s) => s.code === body.state)) {

@@ -16,7 +16,7 @@ function formatDate(date: Date | null) {
 export default async function PhotoDetailPage({ params }: { params: { id: string } }) {
   const photo = await prisma.photo.findUnique({
     where: { id: params.id },
-    include: { photographer: { select: { name: true } } },
+    include: { photographer: { select: { name: true } }, tags: true },
   });
 
   if (!photo) notFound();
@@ -39,7 +39,6 @@ export default async function PhotoDetailPage({ params }: { params: { id: string
     ...(photo.state ? [{ label: "State", value: stateLabel(photo.state) }] : []),
     ...(photo.locationDetail ? [{ label: "Location Detail", value: photo.locationDetail }] : []),
     ...(photo.camera ? [{ label: "Camera", value: photo.camera }] : []),
-    { label: "Category", value: photo.category },
     ...(photo.dateTaken ? [{ label: "Date Taken", value: formatDate(photo.dateTaken)! }] : []),
   ];
 
@@ -83,6 +82,19 @@ export default async function PhotoDetailPage({ params }: { params: { id: string
           </Link>
         </p>
       </div>
+
+      {photo.tags.length > 0 && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {photo.tags.map((tag) => (
+            <span
+              key={tag.id}
+              className="rounded-full border border-gold/50 bg-gold/10 px-3 py-1 text-xs text-gold"
+            >
+              {tag.name}
+            </span>
+          ))}
+        </div>
+      )}
 
       {photo.description && <p className="mt-6 text-bone-muted">{photo.description}</p>}
 
