@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
@@ -51,8 +50,9 @@ export default async function PhotoDetailPage({ params }: { params: { id: string
         <Link href="/gallery" className="hover:text-gold">Gallery</Link>
       </div>
 
-      <div className="relative mt-6 aspect-[4/3] w-full overflow-hidden rounded-md border border-ink-border bg-ink-raised">
-        <Image src={photo.imageUrl} alt={photo.title} fill className="object-cover" priority />
+      <div className="relative mt-6 w-full overflow-hidden rounded-md border border-ink-border bg-ink-raised">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={photo.imageUrl} alt={photo.title} className="block h-auto w-full" />
       </div>
 
       <div className="mt-8 flex flex-col gap-2">
