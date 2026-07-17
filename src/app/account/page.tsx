@@ -12,6 +12,7 @@ export default function AccountPage() {
   const [email, setEmail] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [pendingName, setPendingName] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,6 +27,7 @@ export default function AccountPage() {
     if (session?.user) {
       setName(session.user.name ?? "");
       setEmail(session.user.email ?? "");
+      setPendingName(session.user.pendingName ?? null);
     }
   }, [session]);
 
@@ -49,10 +51,15 @@ export default function AccountPage() {
       return;
     }
 
-    await update({ name: data.name, email: data.email });
+    await update({ name: data.name, email: data.email, pendingName: data.pendingName ?? null });
+    setPendingName(data.pendingName ?? null);
     setCurrentPassword("");
     setNewPassword("");
-    setSuccess("Your account has been updated.");
+    setSuccess(
+      data.nameChangeSubmitted
+        ? "Your email/password changes were saved. Your name change is now pending admin approval."
+        : "Your account has been updated."
+    );
     setLoading(false);
     router.refresh();
   }
@@ -81,6 +88,11 @@ export default function AccountPage() {
             onChange={(e) => setName(e.target.value)}
             className="input-field"
           />
+          {pendingName && pendingName !== session?.user?.name && (
+            <p className="mt-1 text-xs text-gold">
+              Change to &ldquo;{pendingName}&rdquo; is pending admin approval.
+            </p>
+          )}
         </div>
         <div>
           <label className="label-field" htmlFor="email">Email</label>

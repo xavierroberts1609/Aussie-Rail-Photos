@@ -26,7 +26,13 @@ export const authOptions: NextAuthOptions = {
         const valid = await bcrypt.compare(credentials.password, user.passwordHash);
         if (!valid) return null;
 
-        return { id: user.id, name: user.name, email: user.email, role: user.role as "USER" | "ADMIN" };
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role as "USER" | "ADMIN",
+          pendingName: user.pendingName,
+        };
       },
     }),
   ],
@@ -35,10 +41,12 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.pendingName = user.pendingName;
       }
       if (trigger === "update" && session) {
         if (typeof session.name === "string") token.name = session.name;
         if (typeof session.email === "string") token.email = session.email;
+        if ("pendingName" in session) token.pendingName = session.pendingName;
       }
       return token;
     },
@@ -48,6 +56,7 @@ export const authOptions: NextAuthOptions = {
         session.user.role = token.role;
         session.user.name = token.name;
         session.user.email = token.email as string;
+        session.user.pendingName = token.pendingName ?? null;
       }
       return session;
     },

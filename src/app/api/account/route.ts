@@ -45,14 +45,22 @@ export async function PATCH(request: Request) {
     }
   }
 
-  await prisma.user.update({
+  const nameChanged = name !== user.name;
+
+  const updated = await prisma.user.update({
     where: { id: userId },
     data: {
-      name,
       email,
+      pendingName: nameChanged ? name : user.pendingName,
       ...(newPassword ? { passwordHash: await bcrypt.hash(newPassword, 10) } : {}),
     },
   });
 
-  return NextResponse.json({ ok: true, name, email });
+  return NextResponse.json({
+    ok: true,
+    name: updated.name,
+    email: updated.email,
+    pendingName: updated.pendingName,
+    nameChangeSubmitted: nameChanged,
+  });
 }
