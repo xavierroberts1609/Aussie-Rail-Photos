@@ -77,6 +77,9 @@ export default async function GalleryPage({
         <Suspense fallback={null}>
           <CategoryFilter />
         </Suspense>
+        <p className="text-xs text-bone-muted">
+          On large screens, photo thumbnails may appear low quality. To see the best quality, click into the photo.
+        </p>
       </div>
 
       {photos.length === 0 ? (
