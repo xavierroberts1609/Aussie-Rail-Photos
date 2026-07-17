@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 const cards = [
@@ -17,6 +18,15 @@ export default function HomePage() {
   return (
     <div>
       <section className="relative overflow-hidden border-b border-ink-border">
+        <Image
+          src="/images/hero-banner.jpg"
+          alt="Interstate locomotives hauling a passenger train across a bridge in Australia"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[center_68%]"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-ink/70" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(109,138,115,0.12),transparent_60%)]" />
         <div className="relative mx-auto flex max-w-4xl flex-col items-center px-4 py-28 text-center">
           <h1 className="font-display text-5xl leading-tight text-bone sm:text-6xl">
