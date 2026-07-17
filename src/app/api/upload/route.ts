@@ -66,7 +66,7 @@ export async function POST(request: Request) {
     data: {
       title: title.trim(),
       category: category as string,
-      imageUrl: `/uploads/${filename}`,
+      imageUrl: `/api/uploads/${filename}`,
       operator: typeof operator === "string" && operator.trim() ? operator.trim() : null,
       trainLine: typeof trainLine === "string" && trainLine.trim() ? trainLine.trim() : null,
       trainType: typeof trainType === "string" && trainType.trim() ? trainType.trim() : null,

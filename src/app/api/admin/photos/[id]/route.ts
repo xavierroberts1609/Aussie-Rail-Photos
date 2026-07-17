@@ -75,8 +75,8 @@ export async function DELETE(_request: Request, { params }: { params: { id: stri
 
   await prisma.photo.delete({ where: { id: params.id } });
 
-  if (photo.imageUrl.startsWith("/uploads/")) {
-    const filePath = path.join(process.cwd(), "public", photo.imageUrl);
+  if (photo.imageUrl.startsWith("/uploads/") || photo.imageUrl.startsWith("/api/uploads/")) {
+    const filePath = path.join(process.cwd(), "public", "uploads", path.basename(photo.imageUrl));
     await unlink(filePath).catch(() => {});
   }
 
