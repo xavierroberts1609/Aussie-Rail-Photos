@@ -3,9 +3,8 @@ import { unlink } from "fs/promises";
 import path from "path";
 import { prisma } from "@/lib/prisma";
 import { requireAdminSession } from "@/lib/requireAdmin";
-import { CATEGORIES } from "@/lib/categories";
 import { PHOTO_STATUS } from "@/lib/constants";
-import { STATES } from "@/lib/locations";
+import { parsePhotoFields } from "@/lib/photoFields";
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   const session = await requireAdminSession();
@@ -23,39 +22,17 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
-  const data: Record<string, unknown> = {};
+  const parsed = parsePhotoFields(body);
+  if ("error" in parsed) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
+  }
+  const data = parsed.data;
 
   if (body.status !== undefined) {
     if (!Object.values(PHOTO_STATUS).includes(body.status)) {
       return NextResponse.json({ error: "Invalid status." }, { status: 400 });
     }
     data.status = body.status;
-  }
-  if (body.title !== undefined) {
-    if (typeof body.title !== "string" || !body.title.trim()) {
-      return NextResponse.json({ error: "Title cannot be empty." }, { status: 400 });
-    }
-    data.title = body.title.trim();
-  }
-  if (body.category !== undefined) {
-    if (!CATEGORIES.includes(body.category)) {
-      return NextResponse.json({ error: "Invalid category." }, { status: 400 });
-    }
-    data.category = body.category;
-  }
-  if (body.state !== undefined) {
-    if (body.state && !STATES.some((s) => s.code === body.state)) {
-      return NextResponse.json({ error: "Invalid state." }, { status: 400 });
-    }
-    data.state = body.state || null;
-  }
-  for (const field of ["operator", "trainLine", "trainType", "consist", "suburb", "station", "locationDetail", "camera", "description"] as const) {
-    if (body[field] !== undefined) {
-      data[field] = typeof body[field] === "string" && body[field].trim() ? body[field].trim() : null;
-    }
-  }
-  if (body.dateTaken !== undefined) {
-    data.dateTaken = body.dateTaken ? new Date(body.dateTaken) : null;
   }
 
   const updated = await prisma.photo.update({ where: { id: params.id }, data });

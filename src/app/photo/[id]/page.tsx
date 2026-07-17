@@ -21,11 +21,12 @@ export default async function PhotoDetailPage({ params }: { params: { id: string
 
   if (!photo) notFound();
 
-  if (photo.status !== PHOTO_STATUS.APPROVED) {
-    const session = await getServerSession(authOptions);
-    const isOwner = session?.user?.id === photo.photographerId;
-    const isAdmin = session?.user?.role === ROLES.ADMIN;
-    if (!isOwner && !isAdmin) notFound();
+  const session = await getServerSession(authOptions);
+  const isOwner = session?.user?.id === photo.photographerId;
+  const isAdmin = session?.user?.role === ROLES.ADMIN;
+
+  if (photo.status !== PHOTO_STATUS.APPROVED && !isOwner && !isAdmin) {
+    notFound();
   }
 
   const details: { label: string; value: string }[] = [
@@ -61,7 +62,17 @@ export default async function PhotoDetailPage({ params }: { params: { id: string
             Pending approval — only visible to you and admins
           </span>
         )}
-        <h1 className="font-display text-3xl text-bone">{photo.title}</h1>
+        <div className="flex items-start justify-between gap-4">
+          <h1 className="font-display text-3xl text-bone">{photo.title}</h1>
+          {isOwner && (
+            <Link
+              href={`/photo/${photo.id}/edit`}
+              className="btn-outline shrink-0 text-sm"
+            >
+              Edit Photo
+            </Link>
+          )}
+        </div>
         <p className="text-bone-muted">
           by{" "}
           <Link

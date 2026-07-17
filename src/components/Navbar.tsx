@@ -112,6 +112,14 @@ export default function Navbar() {
                   >
                     Upload
                   </Link>
+                  <Link
+                    href="/account"
+                    className={`block px-4 py-2 text-sm transition-colors hover:bg-ink-raised hover:text-gold ${
+                      pathname?.startsWith("/account") ? "text-gold" : "text-bone-muted"
+                    }`}
+                  >
+                    My Account
+                  </Link>
                   <button
                     onClick={() => signOut({ callbackUrl: "/" })}
                     className="block w-full px-4 py-2 text-left text-sm text-bone-muted transition-colors hover:bg-ink-raised hover:text-gold"

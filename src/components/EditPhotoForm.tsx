@@ -23,7 +23,17 @@ export type EditablePhoto = {
   dateTaken: string | null;
 };
 
-export default function EditPhotoForm({ photo }: { photo: EditablePhoto }) {
+export default function EditPhotoForm({
+  photo,
+  endpoint,
+  redirectTo,
+  notice,
+}: {
+  photo: EditablePhoto;
+  endpoint: string;
+  redirectTo: string;
+  notice?: string;
+}) {
   const router = useRouter();
   const [form, setForm] = useState({
     title: photo.title,
@@ -52,7 +62,7 @@ export default function EditPhotoForm({ photo }: { photo: EditablePhoto }) {
     setError("");
     setLoading(true);
 
-    const res = await fetch(`/api/admin/photos/${photo.id}`, {
+    const res = await fetch(endpoint, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
@@ -65,12 +75,17 @@ export default function EditPhotoForm({ photo }: { photo: EditablePhoto }) {
       return;
     }
 
-    router.push("/admin");
+    router.push(redirectTo);
     router.refresh();
   }
 
   return (
     <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+      {notice && (
+        <p className="rounded-md border border-gold/50 bg-gold/10 px-4 py-3 text-sm text-gold">
+          {notice}
+        </p>
+      )}
       <div>
         <label className="label-field" htmlFor="title">Title</label>
         <input
@@ -183,7 +198,7 @@ export default function EditPhotoForm({ photo }: { photo: EditablePhoto }) {
         </button>
         <button
           type="button"
-          onClick={() => router.push("/admin")}
+          onClick={() => router.push(redirectTo)}
           className="btn-outline"
         >
           Cancel
