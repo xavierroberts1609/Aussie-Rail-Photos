@@ -43,8 +43,11 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-40 border-b border-ink-border bg-ink/95 backdrop-blur">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-        <Link href="/" className="font-display text-xl tracking-wide text-bone">
-          Aussie <span className="text-gold">Rail Photos</span>
+        <Link href="/" className="flex flex-col leading-tight">
+          <span className="font-display text-2xl tracking-wide text-bone">
+            Aussie <span className="text-gold">Rail Photos</span>
+          </span>
+          <span className="text-[10px] text-bone">Part of the Vic Spotters Group</span>
         </Link>
 
         <div ref={menuRef} className="relative">
