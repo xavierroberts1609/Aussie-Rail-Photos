@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { PHOTO_STATUS, ROLES } from "@/lib/constants";
 import { STATES } from "@/lib/locations";
 import { extractDateTaken } from "@/lib/exif";
+import { optimizeUpload } from "@/lib/imageProcessing";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_SIZE = 30 * 1024 * 1024; // 30MB
@@ -64,10 +65,11 @@ export async function POST(request: Request) {
   const filePath = path.join(process.cwd(), "public", "uploads", filename);
 
   const buffer = Buffer.from(await file.arrayBuffer());
-  await writeFile(filePath, buffer);
-
   const exifDateTaken = await extractDateTaken(buffer);
   const manualDateTaken = typeof dateTaken === "string" && dateTaken ? new Date(dateTaken) : null;
+
+  const optimized = await optimizeUpload(buffer, file.type);
+  await writeFile(filePath, optimized);
 
   const photo = await prisma.photo.create({
     data: {
