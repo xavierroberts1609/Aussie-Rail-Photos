@@ -121,6 +121,9 @@ export default function UploadPage() {
         <div>
           <label className="label-field" htmlFor="dateTaken">Date Taken</label>
           <input id="dateTaken" name="dateTaken" type="date" className="input-field" />
+          <p className="mt-1 text-xs text-bone-muted">
+            If your photo has embedded camera metadata, we&apos;ll use its exact capture time instead of this field.
+          </p>
         </div>
 
         <div>

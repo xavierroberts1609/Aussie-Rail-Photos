@@ -29,8 +29,8 @@ export default function PhotoCard({ photo }: { photo: PhotoCardData }) {
           src={photo.imageUrl}
           alt={photo.title}
           fill
-          sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-          quality={100}
+          sizes="(min-width: 1024px) 20vw, (min-width: 640px) 33vw, 50vw"
+          quality={50}
           className="object-cover transition-transform duration-300 group-hover:scale-105"
         />
       </div>

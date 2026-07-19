@@ -7,6 +7,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { PHOTO_STATUS, ROLES } from "@/lib/constants";
 import { STATES } from "@/lib/locations";
+import { extractDateTaken } from "@/lib/exif";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_SIZE = 30 * 1024 * 1024; // 30MB
@@ -65,6 +66,9 @@ export async function POST(request: Request) {
   const buffer = Buffer.from(await file.arrayBuffer());
   await writeFile(filePath, buffer);
 
+  const exifDateTaken = await extractDateTaken(buffer);
+  const manualDateTaken = typeof dateTaken === "string" && dateTaken ? new Date(dateTaken) : null;
+
   const photo = await prisma.photo.create({
     data: {
       title: title.trim(),
@@ -79,7 +83,7 @@ export async function POST(request: Request) {
       station: typeof station === "string" && station.trim() ? station.trim() : null,
       locationDetail: typeof locationDetail === "string" && locationDetail.trim() ? locationDetail.trim() : null,
       camera: typeof camera === "string" && camera.trim() ? camera.trim() : null,
-      dateTaken: typeof dateTaken === "string" && dateTaken ? new Date(dateTaken) : null,
+      dateTaken: exifDateTaken ?? manualDateTaken,
       description: typeof description === "string" && description.trim() ? description.trim() : null,
       photographerId: userId,
       status: session.user.role === ROLES.ADMIN ? PHOTO_STATUS.APPROVED : PHOTO_STATUS.PENDING,
