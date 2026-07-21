@@ -16,6 +16,7 @@ export default function SearchBar() {
     } else {
       params.delete("q");
     }
+    params.delete("page");
     router.push(`/gallery?${params.toString()}`);
   }
 

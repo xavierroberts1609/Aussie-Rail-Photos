@@ -29,6 +29,7 @@ export default function TagsFilter({ tags }: { tags: FilterTag[] }) {
     } else {
       params.delete("tags");
     }
+    params.delete("page");
     router.push(`/gallery?${params.toString()}`);
   }
 
