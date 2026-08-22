@@ -1,5 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
+import { prisma } from "@/lib/prisma";
+import { PHOTO_STATUS } from "@/lib/constants";
+import NewestPhotosMarquee from "@/components/NewestPhotosMarquee";
+
+export const dynamic = "force-dynamic";
 
 const cards = [
   {
@@ -14,7 +19,14 @@ const cards = [
   },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const newestPhotos = await prisma.photo.findMany({
+    where: { status: PHOTO_STATUS.APPROVED },
+    include: { photographer: { select: { name: true } } },
+    orderBy: { createdAt: "desc" },
+    take: 10,
+  });
+
   return (
     <div>
       <section className="relative overflow-hidden border-b border-ink-border">
@@ -40,7 +52,18 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-5xl px-4 py-20">
+      {newestPhotos.length > 0 && (
+        <section className="mx-auto max-w-6xl px-4 pt-16">
+          <h2 className="font-display text-2xl text-bone">
+            Newest <span className="text-gold">Photos</span>
+          </h2>
+          <div className="mt-6">
+            <NewestPhotosMarquee photos={newestPhotos} />
+          </div>
+        </section>
+      )}
+
+      <section className="mx-auto max-w-5xl px-4 pb-20 pt-12">
         <div className="grid gap-6 sm:grid-cols-2">
           {cards.map((card) => (
             <Link
