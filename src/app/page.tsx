@@ -20,12 +20,22 @@ const cards = [
 ];
 
 export default async function HomePage() {
-  const newestPhotos = await prisma.photo.findMany({
-    where: { status: PHOTO_STATUS.APPROVED },
-    include: { photographer: { select: { name: true } } },
-    orderBy: { createdAt: "desc" },
-    take: 10,
-  });
+  const [newestPhotos, photoCount, photographerCount, operators] = await Promise.all([
+    prisma.photo.findMany({
+      where: { status: PHOTO_STATUS.APPROVED },
+      include: { photographer: { select: { name: true } } },
+      orderBy: { createdAt: "desc" },
+      take: 10,
+    }),
+    prisma.photo.count({ where: { status: PHOTO_STATUS.APPROVED } }),
+    prisma.user.count({ where: { photos: { some: { status: PHOTO_STATUS.APPROVED } } } }),
+    prisma.photo.findMany({
+      where: { status: PHOTO_STATUS.APPROVED, operator: { not: null } },
+      select: { operator: true },
+      distinct: ["operator"],
+    }),
+  ]);
+  const operatorCount = operators.length;
 
   return (
     <div>
@@ -80,6 +90,23 @@ export default async function HomePage() {
               <span className="mt-6 text-sm font-semibold text-gold">Explore →</span>
             </Link>
           ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-5xl px-4 pb-20">
+        <div className="grid grid-cols-3 gap-4 border-t border-ink-border pt-10 text-center">
+          <Link href="/gallery" className="group">
+            <p className="font-display text-3xl text-gold group-hover:text-gold-light">{photoCount}</p>
+            <p className="text-xs text-bone-muted group-hover:text-bone">Photos</p>
+          </Link>
+          <Link href="/photographers" className="group">
+            <p className="font-display text-3xl text-gold group-hover:text-gold-light">{photographerCount}</p>
+            <p className="text-xs text-bone-muted group-hover:text-bone">Photographers</p>
+          </Link>
+          <div>
+            <p className="font-display text-3xl text-gold">{operatorCount}</p>
+            <p className="text-xs text-bone-muted">Operators</p>
+          </div>
         </div>
       </section>
     </div>

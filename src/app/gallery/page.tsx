@@ -140,14 +140,14 @@ export default async function GalleryPage({
       )}
 
       <div className="mt-16 grid grid-cols-3 gap-4 border-t border-ink-border pt-10 text-center">
-        <div>
-          <p className="font-display text-3xl text-gold">{photoCount}</p>
-          <p className="text-xs text-bone-muted">Photos</p>
-        </div>
-        <div>
-          <p className="font-display text-3xl text-gold">{photographerCount}</p>
-          <p className="text-xs text-bone-muted">Photographers</p>
-        </div>
+        <Link href="/gallery" className="group">
+          <p className="font-display text-3xl text-gold group-hover:text-gold-light">{photoCount}</p>
+          <p className="text-xs text-bone-muted group-hover:text-bone">Photos</p>
+        </Link>
+        <Link href="/photographers" className="group">
+          <p className="font-display text-3xl text-gold group-hover:text-gold-light">{photographerCount}</p>
+          <p className="text-xs text-bone-muted group-hover:text-bone">Photographers</p>
+        </Link>
         <div>
           <p className="font-display text-3xl text-gold">{operatorCount}</p>
           <p className="text-xs text-bone-muted">Operators</p>

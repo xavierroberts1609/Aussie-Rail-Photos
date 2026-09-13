@@ -6,11 +6,20 @@ export const dynamic = "force-dynamic";
 
 export default async function PhotographersPage() {
   const approved = { status: PHOTO_STATUS.APPROVED };
-  const users = await prisma.user.findMany({
-    where: { photos: { some: approved } },
-    select: { id: true, name: true, _count: { select: { photos: { where: approved } } } },
-  });
+  const [users, photoCount, operators] = await Promise.all([
+    prisma.user.findMany({
+      where: { photos: { some: approved } },
+      select: { id: true, name: true, _count: { select: { photos: { where: approved } } } },
+    }),
+    prisma.photo.count({ where: approved }),
+    prisma.photo.findMany({
+      where: { ...approved, operator: { not: null } },
+      select: { operator: true },
+      distinct: ["operator"],
+    }),
+  ]);
   const photographers = users.sort((a, b) => b._count.photos - a._count.photos);
+  const operatorCount = operators.length;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
@@ -48,6 +57,21 @@ export default async function PhotographersPage() {
           ))}
         </ul>
       )}
+
+      <div className="mt-16 grid grid-cols-3 gap-4 border-t border-ink-border pt-10 text-center">
+        <Link href="/gallery" className="group">
+          <p className="font-display text-3xl text-gold group-hover:text-gold-light">{photoCount}</p>
+          <p className="text-xs text-bone-muted group-hover:text-bone">Photos</p>
+        </Link>
+        <Link href="/photographers" className="group">
+          <p className="font-display text-3xl text-gold group-hover:text-gold-light">{photographers.length}</p>
+          <p className="text-xs text-bone-muted group-hover:text-bone">Photographers</p>
+        </Link>
+        <div>
+          <p className="font-display text-3xl text-gold">{operatorCount}</p>
+          <p className="text-xs text-bone-muted">Operators</p>
+        </div>
+      </div>
     </div>
   );
 }
