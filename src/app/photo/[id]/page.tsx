@@ -48,13 +48,6 @@ export default async function PhotoDetailPage({ params }: { params: { id: string
         <Link href="/" className="hover:text-gold">Home</Link>
         <span>/</span>
         <Link href="/gallery" className="hover:text-gold">Gallery</Link>
-        <span>/</span>
-        <Link
-          href={`/photographers/${encodeURIComponent(photo.photographer.name)}`}
-          className="hover:text-gold"
-        >
-          {photo.photographer.name}
-        </Link>
       </div>
 
       <div className="relative mt-6 w-full overflow-hidden rounded-md border border-ink-border bg-ink-raised">
