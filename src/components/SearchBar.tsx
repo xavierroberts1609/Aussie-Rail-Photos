@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
-export default function SearchBar() {
+export default function SearchBar({ basePath = "/gallery" }: { basePath?: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [value, setValue] = useState(searchParams.get("q") || "");
@@ -17,7 +17,7 @@ export default function SearchBar() {
       params.delete("q");
     }
     params.delete("page");
-    router.push(`/gallery?${params.toString()}`);
+    router.push(`${basePath}?${params.toString()}`);
   }
 
   return (

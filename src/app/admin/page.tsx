@@ -1,27 +1,45 @@
+import { Suspense } from "react";
 import { prisma } from "@/lib/prisma";
 import { PHOTO_STATUS } from "@/lib/constants";
 import AdminPhotoRow from "@/components/AdminPhotoRow";
 import AdminNameChangeRow from "@/components/AdminNameChangeRow";
 import AdminTagsManager from "@/components/AdminTagsManager";
+import SearchBar from "@/components/SearchBar";
+import TagsFilter from "@/components/TagsFilter";
+import SortSelect from "@/components/SortSelect";
+import { isSortKey, sortToOrderBy, type SortKey } from "@/lib/sort";
+import { buildSearchFilter, parseTagIds } from "@/lib/photoQuery";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminPage() {
-  const photos = await prisma.photo.findMany({
-    include: { photographer: { select: { name: true } }, tags: true },
-    orderBy: [{ status: "asc" }, { createdAt: "desc" }],
-  });
+export default async function AdminPage({
+  searchParams,
+}: {
+  searchParams: { tags?: string; q?: string; sort?: string };
+}) {
+  const tagIds = parseTagIds(searchParams.tags);
+  const q = searchParams.q;
+  const sort: SortKey = isSortKey(searchParams.sort) ? searchParams.sort : "uploaded_desc";
 
-  const pendingNameChanges = await prisma.user.findMany({
-    where: { pendingName: { not: null } },
-    select: { id: true, name: true, pendingName: true, email: true },
-  });
+  const [pending, allPhotos, pendingNameChanges, tags] = await Promise.all([
+    prisma.photo.findMany({
+      where: { status: PHOTO_STATUS.PENDING },
+      include: { photographer: { select: { name: true } }, tags: true },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.photo.findMany({
+      where: buildSearchFilter(tagIds, q),
+      include: { photographer: { select: { name: true } }, tags: true },
+      orderBy: sortToOrderBy(sort),
+    }),
+    prisma.user.findMany({
+      where: { pendingName: { not: null } },
+      select: { id: true, name: true, pendingName: true, email: true },
+    }),
+    prisma.tag.findMany({ orderBy: { name: "asc" } }),
+  ]);
 
-  const tags = await prisma.tag.findMany({ orderBy: { name: "asc" } });
-
-  const pending = photos.filter((p) => p.status === PHOTO_STATUS.PENDING);
-
-  const serialize = (p: (typeof photos)[number]) => ({
+  const serialize = (p: (typeof allPhotos)[number]) => ({
     ...p,
     createdAt: p.createdAt.toISOString(),
   });
@@ -66,13 +84,28 @@ export default async function AdminPage() {
 
       <section className="mt-14">
         <h2 className="font-display text-2xl text-bone">
-          All Photos <span className="text-gold">({photos.length})</span>
+          All Photos <span className="text-gold">({allPhotos.length})</span>
         </h2>
+        <div className="mt-4 flex flex-col gap-4">
+          <Suspense fallback={<div className="input-field max-w-md" />}>
+            <SearchBar basePath="/admin" />
+          </Suspense>
+          <div className="flex flex-wrap items-center gap-3">
+            <Suspense fallback={null}>
+              <TagsFilter tags={tags} basePath="/admin" />
+            </Suspense>
+            <Suspense fallback={null}>
+              <SortSelect basePath="/admin" />
+            </Suspense>
+          </div>
+        </div>
         <div className="mt-4 flex flex-col gap-3">
-          {photos.length === 0 ? (
-            <p className="text-sm text-bone-muted">No photos have been uploaded yet.</p>
+          {allPhotos.length === 0 ? (
+            <p className="text-sm text-bone-muted">
+              {q || tagIds.length > 0 ? "No photos match your search or filter." : "No photos have been uploaded yet."}
+            </p>
           ) : (
-            photos.map((photo) => <AdminPhotoRow key={photo.id} photo={serialize(photo)} />)
+            allPhotos.map((photo) => <AdminPhotoRow key={photo.id} photo={serialize(photo)} />)
           )}
         </div>
       </section>

@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 export type FilterTag = { id: string; name: string };
 
-export default function TagsFilter({ tags }: { tags: FilterTag[] }) {
+export default function TagsFilter({ tags, basePath = "/gallery" }: { tags: FilterTag[]; basePath?: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const activeIds = (searchParams.get("tags") || "").split(",").filter(Boolean);
@@ -30,7 +30,7 @@ export default function TagsFilter({ tags }: { tags: FilterTag[] }) {
       params.delete("tags");
     }
     params.delete("page");
-    router.push(`/gallery?${params.toString()}`);
+    router.push(`${basePath}?${params.toString()}`);
   }
 
   function toggleTag(id: string) {

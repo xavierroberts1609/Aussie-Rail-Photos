@@ -10,33 +10,12 @@ import Pagination from "@/components/Pagination";
 import PageSizeSync from "@/components/PageSizeSync";
 import { isSortKey, sortToOrderBy, type SortKey } from "@/lib/sort";
 import { parsePage, parsePageSize } from "@/lib/pagination";
+import { buildSearchFilter, parseTagIds } from "@/lib/photoQuery";
 
 export const dynamic = "force-dynamic";
 
-function buildWhere(tagIds: string[], q: string | undefined) {
-  return {
-    status: PHOTO_STATUS.APPROVED,
-    ...(tagIds.length > 0 ? { tags: { some: { id: { in: tagIds } } } } : {}),
-    ...(q
-      ? {
-          OR: [
-            { title: { contains: q } },
-            { operator: { contains: q } },
-            { trainLine: { contains: q } },
-            { trainType: { contains: q } },
-            { consist: { contains: q } },
-            { suburb: { contains: q } },
-            { station: { contains: q } },
-            { locationDetail: { contains: q } },
-            { photographer: { name: { contains: q } } },
-          ],
-        }
-      : {}),
-  };
-}
-
 async function getPhotos(tagIds: string[], q: string | undefined, sort: SortKey, page: number, pageSize: number) {
-  const where = buildWhere(tagIds, q);
+  const where = { status: PHOTO_STATUS.APPROVED, ...buildSearchFilter(tagIds, q) };
   const total = await prisma.photo.count({ where });
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const clampedPage = Math.min(page, totalPages);
@@ -57,7 +36,7 @@ export default async function GalleryPage({
 }: {
   searchParams: { tags?: string; q?: string; sort?: string; page?: string; pageSize?: string };
 }) {
-  const tagIds = searchParams.tags ? searchParams.tags.split(",").filter(Boolean) : [];
+  const tagIds = parseTagIds(searchParams.tags);
   const q = searchParams.q;
   const sort: SortKey = isSortKey(searchParams.sort) ? searchParams.sort : "uploaded_desc";
   const pageSize = parsePageSize(searchParams.pageSize);

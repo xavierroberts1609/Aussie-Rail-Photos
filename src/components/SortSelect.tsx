@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { SORT_OPTIONS, isSortKey, type SortKey } from "@/lib/sort";
 
-export default function SortSelect() {
+export default function SortSelect({ basePath = "/gallery" }: { basePath?: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const activeSort: SortKey = isSortKey(searchParams.get("sort") ?? undefined)
@@ -18,7 +18,7 @@ export default function SortSelect() {
       params.set("sort", sort);
     }
     params.delete("page");
-    router.push(`/gallery?${params.toString()}`);
+    router.push(`${basePath}?${params.toString()}`);
   }
 
   return (
